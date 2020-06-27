@@ -1,6 +1,6 @@
 // npm packages
 import path from 'path';
-import express, { Application, Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import 'dotenv/config';
@@ -8,7 +8,6 @@ import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 // Imports
-import userRoutes from './routes/user.routes';
 import Controller from './interfaces/controller.interface';
 
 class App {
@@ -43,7 +42,8 @@ class App {
     const { MONGO_USER, MONGO_PASSWORD, MONGO_URI } = process.env;
 
     mongoose
-      .connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_URI}`, { useNewUrlParser: true, useUnifiedTopology: true })
+      .connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_URI}`,
+        { useNewUrlParser: true, useUnifiedTopology: true })
       .then(() => {
         this.listen();
       })
