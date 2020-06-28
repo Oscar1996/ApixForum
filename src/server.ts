@@ -6,7 +6,9 @@ import validateEnv from './util/validateEnv';
 // Validating environment variables
 validateEnv();
 
-const Controllers = [new PostsController()];
+const Controllers = [
+  new PostsController()
+];
 
 const app = new App(Controllers);
 
