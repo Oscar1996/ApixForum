@@ -9,7 +9,7 @@ class PostController implements Controller {
 
   public path: string = '/posts'
   public router: Router = Router();
-  private post = postModel;
+  // private post = postModel;
 
 
   constructor() {
@@ -35,44 +35,44 @@ class PostController implements Controller {
 
   getPostById = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const post = await postModel.findById(id);
-    return res.status(200).send(post);
+    try {
+      const post = await postModel.findById(id);
+      return res.status(200).send(post);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   modifyPost = async (req: Request, res: Response) => {
     const id = req.params.id;
     const postData: Post = req.body;
-    const modifyPost = await postModel.findByIdAndUpdate(id, postData, { new: true });
-    console.log(modifyPost);
-    return res.status(201).json(modifyPost);
+    try {
+      const modifyPost = await postModel.findByIdAndUpdate(id, postData, { new: true });
+      return res.status(201).json({
+        message: 'Post updated successfully!',
+        post: modifyPost
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   createAPost = async (req: Request, res: Response) => {
     // postData expect Post interface (author, content, title)
     const postData: Post = req.body;
     const createdPost = new postModel(postData);
-    // try {
-    //   const postSaved = await createdPost.save();
-    //   console.log(postSaved);
-    //   return res.status(201).json({
-    //     message: 'Post created successfully!',
-    //     ...postSaved
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    // }
-    createdPost.save()
-      .then(savedPost => {
-        console.log(savedPost);
-        return res.status(201).json(savedPost);
-      })
-      .catch(err => {
-        console.log(err);
+    try {
+      await createdPost.save();
+      return res.status(201).json({
+        message: 'Post created successfully!',
+        post: createdPost
       });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   deletePost = async (req: Request, res: Response) => {
-
     const id = req.params.id;
     const deletedPost = await postModel.findByIdAndDelete(id);
     if (deletedPost) {
@@ -85,9 +85,6 @@ class PostController implements Controller {
       });
     }
   };
-
-
-
 }
 
 export default PostController;
