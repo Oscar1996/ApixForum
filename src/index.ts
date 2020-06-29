@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express';
 
 // Imports
 import Controller from './interfaces/controller.interface';
+import errorMiddleware from './middlewares/error.middlewares';
 
 class App {
 
@@ -19,12 +20,13 @@ class App {
 
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
+    this.initializeErrorHandler();
   }
 
   private listen() {
     this.app.listen(process.env.PORT, () => {
       console.log(`Server running at port ${process.env.PORT}`);
-    })
+    });
   }
 
   private initializeMiddlewares() {
@@ -35,6 +37,10 @@ class App {
     controllers.forEach((controller: Controller) => {
       this.app.use('/', controller.router);
     });
+  }
+
+  private initializeErrorHandler() {
+    this.app.use(errorMiddleware);
   }
 
   public connectToTheDataBase() {

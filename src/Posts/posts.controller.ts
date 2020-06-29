@@ -3,6 +3,9 @@ import Post from './post.interface';
 import Controller from '../interfaces/controller.interface';
 // An instance of a model is called a document
 import postModel from './posts.model';
+import PostNotFoundException from '../exceptions/PostNotFoundException';
+import postDto from './post.dto';
+
 
 
 class PostController implements Controller {
@@ -10,7 +13,6 @@ class PostController implements Controller {
   public path: string = '/posts'
   public router: Router = Router();
   // private post = postModel;
-
 
   constructor() {
     this.initializeRoutes();
@@ -25,35 +27,35 @@ class PostController implements Controller {
   };
 
   getAllPosts = async (req: Request, res: Response) => {
-    try {
-      const posts = await postModel.find();
-      return res.status(200).send(posts);
-    } catch (error) {
-      console.log(error);
+    const posts = await postModel.find();
+    if (posts) {
+      return res.status(200).json(posts);
+    } else {
+      return res.status(404).json({ error: 'Posts not found!' });
     }
   };
 
-  getPostById = async (req: Request, res: Response) => {
+  getPostById = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
-    try {
-      const post = await postModel.findById(id);
-      return res.status(200).send(post);
-    } catch (error) {
-      console.log(error);
+    const post = await postModel.findById(id);
+    if (post) {
+      return res.status(200).json(post);
+    } else {
+      next(new PostNotFoundException(+id));
     }
   };
 
-  modifyPost = async (req: Request, res: Response) => {
+  modifyPost = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const postData: Post = req.body;
-    try {
-      const modifyPost = await postModel.findByIdAndUpdate(id, postData, { new: true });
+    const modifiedPost = await postModel.findByIdAndUpdate(id, postData, { new: true });
+    if (modifiedPost) {
       return res.status(201).json({
         message: 'Post updated successfully!',
-        post: modifyPost
+        post: modifiedPost
       });
-    } catch (error) {
-      console.log(error);
+    } else {
+      next(new PostNotFoundException(+id));
     }
   };
 
@@ -61,18 +63,14 @@ class PostController implements Controller {
     // postData expect Post interface (author, content, title)
     const postData: Post = req.body;
     const createdPost = new postModel(postData);
-    try {
-      await createdPost.save();
-      return res.status(201).json({
-        message: 'Post created successfully!',
-        post: createdPost
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    await createdPost.save();
+    return res.status(201).json({
+      message: 'Post created successfully!',
+      post: createdPost
+    });
   };
 
-  deletePost = async (req: Request, res: Response) => {
+  deletePost = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const deletedPost = await postModel.findByIdAndDelete(id);
     if (deletedPost) {
@@ -80,9 +78,7 @@ class PostController implements Controller {
         message: 'Post deleted successfully!'
       });
     } else {
-      return res.status(404).json({
-        message: 'Failed to delete post!'
-      });
+      next(new PostNotFoundException(+id));
     }
   };
 }
