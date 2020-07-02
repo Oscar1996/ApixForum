@@ -1,4 +1,4 @@
-import HttpException from './httpException';
+import HttpException from './HttpException';
 
 class PostNotFoundException extends HttpException {
 

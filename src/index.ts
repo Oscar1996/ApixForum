@@ -10,6 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 // Imports
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middlewares/error.middlewares';
+import validationMiddleware from './middlewares/validation.middlewares';
 
 class App {
 

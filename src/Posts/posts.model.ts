@@ -5,7 +5,8 @@ const postSchema = new Schema({
   author: String,
   content: String,
   title: String,
-});
+},
+  { timestamps: true });
 
 // TypeScript is now aware of all the fields you defined in the interface,
 // and knows that it can expect them to be available in the post model.

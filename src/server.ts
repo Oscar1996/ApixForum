@@ -14,7 +14,6 @@ const Controllers = [
 ];
 
 const app = new App(Controllers);
-
 app.connectToTheDataBase();
 
 
