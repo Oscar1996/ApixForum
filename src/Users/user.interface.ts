@@ -1,11 +1,10 @@
-import mongoose from 'mongoose';
-
-export interface User extends mongoose.Document {
+interface User {
   username: string;
   email: string;
   password: string;
   role: string;
   active: boolean;
-  tokens: Array<Object>;
 }
+
+export default User;
 

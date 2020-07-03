@@ -1,4 +1,3 @@
-
 import App from './index';
 import PostsController from './Posts/posts.controller';
 import UsersController from './Users/users.controller';
