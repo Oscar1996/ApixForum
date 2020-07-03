@@ -9,6 +9,14 @@
     "dev": "nodemon ./src/server.ts",
     "build": "tsc -p ."
   },
+  "nodemonConfig": {
+    "ignore": [".git", "node_modules/**/node_modules"],
+    "exec": "ts-node --files",
+    "verbose": true,
+    "watch": ["src/"],
+    "ext": "js,json,ts"
+
+  },
   "author": "Oscar Valdivia",
   "license": "ISC",
   "dependencies": {
