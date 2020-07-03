@@ -1,6 +1,7 @@
-import { Schema, Document, model } from 'mongoose';
-import User from './user.interface';
-import bcrypt from 'bcryptjs';
+import { Schema, model, Document } from 'mongoose';
+import { User } from './user.interface';
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new Schema(
   {
@@ -31,6 +32,27 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+
+userSchema.pre("save", async function (this: User, next) {
+  const user = this;
+
+  if (user.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+
+  next();
+});
+
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ user: { id: user.id } }, process.env.SECRET_WORD);
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
+};
+
 
 // TypeScript is now aware of all the fields you defined in the interface,
 // and knows that it can expect them to be available in the user model.
