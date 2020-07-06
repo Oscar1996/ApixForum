@@ -1,11 +1,11 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import {User} from './user.interface';
+import { Router, Request, Response } from 'express';
+import { User } from './user.interface';
 import Controller from '../interfaces/controller.interface';
 // An instance of a model is called a document
 
 import authMiddleware from '../middlewares/auth.middleware'
 import userModel from './users.model';
-const bcrypt = require("bcryptjs");
+import bcrypt from 'bcryptjs';
 
 
 class UserController implements Controller {
@@ -26,7 +26,7 @@ class UserController implements Controller {
     this.router.delete(this.path + '/:id', this.deleteUser);
   };
 
-  public authRoutes(){
+  public authRoutes() {
     this.router.post('/login', this.loginUser);
 
   }
@@ -58,21 +58,20 @@ class UserController implements Controller {
     // userData expects User interface (email, password) others fields are optional or  handled automatically by mongoose
     const userData: User = req.body;
     const createdUser = new userModel(userData);
-   try {
-     const userSaved = await createdUser.save();
-     console.log(userSaved);
-     return res.status(201).json({
-       message: 'User has been registered successfully!',
-       user : userSaved
-     });
-   } catch (error) {
-     console.log(error);
-   }
+    try {
+      const userSaved = await createdUser.save();
+      console.log(userSaved);
+      return res.status(201).json({
+        message: 'User has been registered successfully!',
+        user: userSaved
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
   };
 
   deleteUser = async (req: Request, res: Response) => {
-
     const id = req.params.id;
     const deletedUser = await userModel.findByIdAndDelete(id);
     if (deletedUser) {
@@ -86,13 +85,13 @@ class UserController implements Controller {
     }
   };
 
-   loginUser = async (req: Request, res: Response) => {
+  loginUser = async (req: Request, res: Response) => {
     //const errors = validationResult(req);
     /* if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     } */
     const { email, password } = req.body;
-  
+
     try {
       const user = await userModel.findOne({ email: email });
       if (!user) {
@@ -113,25 +112,25 @@ class UserController implements Controller {
 
 
 
-/*   logoutActualToken = async (req: Request, res: Response) => {
-    try {
-      const user = await userModel.findOne({ _id: req.user.id });
-      if (!user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: "You are already logged out" }] });
+  /*   logoutActualToken = async (req: Request, res: Response) => {
+      try {
+        const user = await userModel.findOne({ _id: req.user.id });
+        if (!user) {
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "You are already logged out" }] });
+        }
+        user.tokens = user.tokens.filter(s: token=>{
+          return token.token !== req.token;
+        });
+    
+        await user.save();
+        return res.send();
+      } catch (err) {
+        console.error(err.message);
+        return res.status(500).send("server error");
       }
-      user.tokens = user.tokens.filter(s: token=>{
-        return token.token !== req.token;
-      });
-  
-      await user.save();
-      return res.send();
-    } catch (err) {
-      console.error(err.message);
-      return res.status(500).send("server error");
-    }
-  }; */
+    }; */
 }
 
 export default UserController;

@@ -10,12 +10,16 @@
     "build": "tsc -p ."
   },
   "nodemonConfig": {
-    "ignore": [".git", "node_modules/**/node_modules"],
+    "ignore": [
+      ".git",
+      "node_modules/**/node_modules"
+    ],
     "exec": "ts-node --files",
     "verbose": true,
-    "watch": ["src/"],
+    "watch": [
+      "src/"
+    ],
     "ext": "js,json,ts"
-
   },
   "author": "Oscar Valdivia",
   "license": "ISC",

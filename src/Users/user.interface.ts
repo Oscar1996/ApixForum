@@ -7,8 +7,6 @@ export interface User extends mongoose.Document {
   active: boolean;
   tokens: Array<Token>;
   generateAuthToken(): string;
-
-
 }
 
 interface Token {
