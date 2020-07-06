@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken'
 import userModel from "../Users/users.model";
-import {User} from "../Users/user.interface";
-import {  Response, NextFunction, Request, RequestHandler } from 'express-serve-static-core';
+import {  Response, NextFunction, Request } from 'express';
 
 const authMiddleware=  async (req: Request, res: Response, next: NextFunction) => {
     
@@ -24,7 +23,6 @@ const authMiddleware=  async (req: Request, res: Response, next: NextFunction) =
             }).select("-password");
             if (!user) throw Error;
             req.user = user;
-            console.log(decoded)
             next();
         }else{
           next();

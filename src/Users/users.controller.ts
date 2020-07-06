@@ -1,11 +1,19 @@
 import { Router, Request, Response } from 'express';
+<<<<<<< HEAD
 import { User } from './user.interface';
+=======
+import {User} from './user.interface';
+>>>>>>> 200d36a4dda0bbe42adfca4e94f32d064e6b9bcf
 import Controller from '../interfaces/controller.interface';
-// An instance of a model is called a document
-
 import authMiddleware from '../middlewares/auth.middleware'
 import userModel from './users.model';
+<<<<<<< HEAD
 import bcrypt from 'bcryptjs';
+=======
+import userDto from './user.dto';
+import validationMiddleware from '../middlewares/validation.middlewares';
+const bcrypt = require("bcryptjs");
+>>>>>>> 200d36a4dda0bbe42adfca4e94f32d064e6b9bcf
 
 
 class UserController implements Controller {
@@ -16,14 +24,15 @@ class UserController implements Controller {
 
   constructor() {
     this.initializeRoutes();
+    this.authRoutes();
   }
 
   public initializeRoutes() {
     this.router.get(this.path, authMiddleware, this.getAllUsers);
     this.router.get(this.path + '/:id', this.getUserById);
-    this.router.post(this.path, this.createUser);
-    this.router.patch(this.path + '/:id', this.modifyUser);
-    this.router.delete(this.path + '/:id', this.deleteUser);
+    this.router.post(this.path, validationMiddleware(userDto), this.createUser);
+    this.router.patch(this.path + '/:id', validationMiddleware(userDto, true),authMiddleware, this.modifyUser);
+    this.router.delete(this.path + '/:id',authMiddleware, this.deleteUser);
   };
 
   public authRoutes() {
@@ -33,7 +42,7 @@ class UserController implements Controller {
 
   getAllUsers = async (req: Request, res: Response) => {
     try {
-      const users = await userModel.find();
+      const users = await userModel.find().select("-password -updatedAt -tokens");
       return res.status(200).send(users);
     } catch (error) {
       console.log(error);
@@ -102,7 +111,7 @@ class UserController implements Controller {
         return res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
       }
       // Generate authentication token using mongoose schema function
-      const token = await user.generateAuthToken();
+      const token =  await user.generateAuthToken();
       return res.status(200).json({ token });
     } catch (err) {
       console.error(err.message);

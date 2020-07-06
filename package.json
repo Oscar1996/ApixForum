@@ -24,6 +24,7 @@
   "author": "Oscar Valdivia",
   "license": "ISC",
   "dependencies": {
+    "accesscontrol": "^2.2.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.2.3",

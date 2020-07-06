@@ -1,6 +1,7 @@
 import App from './index';
 import PostsController from './Posts/posts.controller';
 import UsersController from './Users/users.controller';
+import RolesController from './Roles/role.controller';
 
 import validateEnv from './util/validateEnv';
 
@@ -9,7 +10,9 @@ validateEnv();
 
 const Controllers = [
   new PostsController(),
-  new UsersController()
+  new UsersController(),
+  new RolesController()
+
 ];
 
 const app = new App(Controllers);

@@ -1,5 +1,5 @@
-import { Schema, model, Document } from 'mongoose';
-import { User } from './user.interface';
+import { Schema, model } from 'mongoose';
+import {User} from './user.interface';
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -25,6 +25,14 @@ const userSchema = new Schema(
       default: "1",
       required: [true, "Role is required"]
     },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true
+        }
+      }
+    ],
     active: {
       type: Boolean,
       default: true
