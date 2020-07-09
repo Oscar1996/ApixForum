@@ -1,19 +1,11 @@
 import { Router, Request, Response } from 'express';
-<<<<<<< HEAD
 import { User } from './user.interface';
-=======
-import {User} from './user.interface';
->>>>>>> 200d36a4dda0bbe42adfca4e94f32d064e6b9bcf
 import Controller from '../interfaces/controller.interface';
 import authMiddleware from '../middlewares/auth.middleware'
 import userModel from './users.model';
-<<<<<<< HEAD
 import bcrypt from 'bcryptjs';
-=======
 import userDto from './user.dto';
 import validationMiddleware from '../middlewares/validation.middlewares';
-const bcrypt = require("bcryptjs");
->>>>>>> 200d36a4dda0bbe42adfca4e94f32d064e6b9bcf
 
 
 class UserController implements Controller {

@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-import {Role, Permission, Action, permissionsObject} from './role.interface';
+import {Role, Permission, Action, permissionsObject, RoleModel} from './role.interface';
 
 const roleSchema = new Schema(
   {
@@ -22,7 +22,7 @@ const roleSchema = new Schema(
                     required: [true, "An action is required"],
                     type: String
                     },
-                    // attributes, ['*'] means every attribute can be read, deleted or updated, !atributename means this attribute is nos avaliable for this role
+                    // attributes, ['*'] means every attribute can be read, deleted or updated, !atributename means this attribute is not avaliable for this role
                     attributes:[
                         {
                             attribute:{
@@ -65,9 +65,18 @@ roleSchema.methods.createPermissions = async function () {
     return permissionsArray;
   };
 
+roleSchema.statics.createAllPermissionsArray = async function (){
+    const roles = await roleModel.find();
+    var allPermissions:permissionsObject[]=[];
+    for (const role of roles) {
+        allPermissions = allPermissions.concat(JSON.parse(JSON.stringify(await role.createPermissions())));
+    }
+    return allPermissions;
+}
+
 // TypeScript is now aware of all the fields you defined in the interface,
 // and knows that it can expect them to be available in the user model.
-const roleModel = model<Role & Document>('Role', roleSchema);
+const roleModel = model<Role,RoleModel >('Role', roleSchema);
 
 export default roleModel;
 

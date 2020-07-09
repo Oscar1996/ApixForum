@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+
 export interface Role extends mongoose.Document {
   name: string;
   permissions: Permission[];
-  createPermissions(): Object;
+  createPermissions(): permissionsObject[];
+  createAllPermissionsArray():permissionsObject[];
 
 }
 
@@ -23,4 +25,9 @@ export interface permissionsObject{
     resource: string,
     action: string,
     attributes: string
+}
+
+
+export interface RoleModel extends mongoose.Model<Role> {
+createAllPermissionsArray():permissionsObject[];
 }
