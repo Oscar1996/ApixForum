@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import Post from './post.interface';
 import Controller from '../interfaces/controller.interface';
 // An instance of a model is called a document
-import postModel from './posts.model';
+import postModel from './post.model';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
 import postDto from './post.dto';
 import validationMiddleware from '../middlewares/validation.middlewares';

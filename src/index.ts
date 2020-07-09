@@ -1,5 +1,4 @@
 // npm packages
-import path from 'path';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
@@ -10,7 +9,7 @@ import swaggerUi from 'swagger-ui-express';
 // Imports
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middlewares/error.middlewares';
-import validationMiddleware from './middlewares/validation.middlewares';
+
 
 class App {
 

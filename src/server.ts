@@ -1,5 +1,5 @@
 import App from './index';
-import PostsController from './Posts/posts.controller';
+import PostsController from './Posts/post.controller';
 import UsersController from './Users/users.controller';
 import RolesController from './Roles/role.controller';
 
