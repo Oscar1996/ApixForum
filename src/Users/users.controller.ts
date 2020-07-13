@@ -1,12 +1,13 @@
-import { Router, Request, Response } from 'express';
-import { User } from './user.interface';
+import { Router, Request, Response, NextFunction } from 'express';
+import { User, Ban } from './user.interface';
 import Controller from '../interfaces/controller.interface';
 import authMiddleware from '../middlewares/auth.middleware'
 import userModel from './users.model';
 import bcrypt from 'bcryptjs';
 import userDto from './user.dto';
 import validationMiddleware from '../middlewares/validation.middlewares';
-
+import HttpException from '../exceptions/HttpException';
+import dayjs from 'dayjs';
 
 class UserController implements Controller {
 
@@ -25,6 +26,8 @@ class UserController implements Controller {
     this.router.post(this.path, validationMiddleware(userDto), this.createUser);
     this.router.patch(this.path + '/:id', validationMiddleware(userDto, true),authMiddleware, this.modifyUser);
     this.router.delete(this.path + '/:id',authMiddleware, this.deleteUser);
+
+    this.router.get(this.path +'/ban'+ '/:id', this.banUser);
   };
 
   public authRoutes() {
@@ -61,7 +64,6 @@ class UserController implements Controller {
     const createdUser = new userModel(userData);
     try {
       const userSaved = await createdUser.save();
-      console.log(userSaved);
       return res.status(201).json({
         message: 'User has been registered successfully!',
         user: userSaved
@@ -71,6 +73,28 @@ class UserController implements Controller {
     }
 
   };
+
+  banUser = async(req: Request, res: Response, next:NextFunction)=>{
+    const userId = req.params.id;
+    const banData: Ban = req.body;
+    try {
+      const user = await userModel.findById(userId);
+
+      if(!user){
+        return next(new HttpException(404, 'User was not found')) 
+      }else{
+        banData.from = dayjs(banData.from).toDate();
+        banData.until = dayjs(banData.until).toDate();
+        user.bans.unshift(banData);
+        await user.save();
+        return res.status(200).json('User '+user.username+ ' was banned correctly')
+      };
+
+    } catch (error) {
+      return (new HttpException(500, error.message))
+    }
+  };
+
 
   deleteUser = async (req: Request, res: Response) => {
     const id = req.params.id;
@@ -86,7 +110,7 @@ class UserController implements Controller {
     }
   };
 
-  loginUser = async (req: Request, res: Response) => {
+  loginUser = async (req: Request, res: Response, next: NextFunction) => {
     //const errors = validationResult(req);
     /* if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -102,12 +126,15 @@ class UserController implements Controller {
       if (!isMatch) {
         return res.status(400).json({ errors: [{ msg: "Invalid credentials" }] });
       }
+      const isBanned = await user.isUserBanned();
+      if(isBanned.banned){
+        return next(new HttpException(403,isBanned.msg))
+      }
       // Generate authentication token using mongoose schema function
       const token =  await user.generateAuthToken();
       return res.status(200).json({ token });
     } catch (err) {
-      console.error(err.message);
-      return res.status(500).send("server error");
+      return next(new HttpException(500,err.message))
     }
   };
 

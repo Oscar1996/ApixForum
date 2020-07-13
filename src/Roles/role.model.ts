@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import {Role, Permission, Action, permissionsObject, RoleModel} from './role.interface';
 
 const roleSchema = new Schema(
@@ -7,13 +7,14 @@ const roleSchema = new Schema(
       type: String,
       required: [true, "A role name is required"]
     },
+    // array will contain all the data needed for the acl module, every resource has its own object and actions allowed.
     permissions:[
         {
-            //access to every resource
+            //Resource name for this permission
             resource:{
                 type: String
             },
-            // Actions allowed for this resource
+            // All Actions allowed for this resource
             actionList:[
                { 
                    action: {
@@ -26,7 +27,8 @@ const roleSchema = new Schema(
                     attributes:[
                         {
                             attribute:{
-                                type: String
+                                type: String,
+                                default: '*'
                             }
                         }
                     ]
@@ -41,7 +43,7 @@ const roleSchema = new Schema(
   { timestamps: true }
 );
 
-
+// Creates only array of permissions for a specific role
 roleSchema.methods.createPermissions = async function () {
     const role = this;
     var permissionTemp:permissionsObject = {role:'', resource:'', action:'', attributes:''};
@@ -65,6 +67,7 @@ roleSchema.methods.createPermissions = async function () {
     return permissionsArray;
   };
 
+// Creates all roles permissions array
 roleSchema.statics.createAllPermissionsArray = async function (){
     const roles = await roleModel.find();
     var allPermissions:permissionsObject[]=[];
@@ -74,8 +77,6 @@ roleSchema.statics.createAllPermissionsArray = async function (){
     return allPermissions;
 }
 
-// TypeScript is now aware of all the fields you defined in the interface,
-// and knows that it can expect them to be available in the user model.
 const roleModel = model<Role,RoleModel >('Role', roleSchema);
 
 export default roleModel;

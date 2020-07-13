@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import {Role, permissionsObject} from './role.interface';
+import {Role} from './role.interface';
 import Controller from '../interfaces/controller.interface';
 // An instance of a model is called a document
 import roleModel from './role.model';
@@ -11,7 +11,6 @@ class RoleController implements Controller {
 
   public path: string = '/roles'
   public router: Router = Router();
-  // private post = postModel;
 
   constructor() {
     this.initializeRoutes();
@@ -19,7 +18,7 @@ class RoleController implements Controller {
  */  }
 
   public initializeRoutes() {
-    this.router.get(this.path, authMiddleware, grantAccess('readOwn','users'),this.getAllRoles);
+    this.router.get(this.path, authMiddleware,this.getAllRoles);
     this.router.post(this.path,   this.createRole);
 /*     this.router.get(this.path+'/test',  this.test);
  */
@@ -54,7 +53,7 @@ class RoleController implements Controller {
   }; */
 
   createRole = async (req: Request, res: Response) => {
-    // postData expect Post interface (author, content, title)
+    // roleData expect Post interface (author, content, title)
     const roleData: Role = req.body;
     const createdRole = new roleModel(roleData);
     await createdRole.save();

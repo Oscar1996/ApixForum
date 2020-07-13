@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import userModel from "../Users/users.model";
 import {  Response, NextFunction, Request } from 'express';
+import HttpException from '../exceptions/HttpException';
 
 const authMiddleware=  async (req: Request, res: Response, next: NextFunction) => {
     
@@ -20,7 +21,8 @@ const authMiddleware=  async (req: Request, res: Response, next: NextFunction) =
             const user = await userModel.findOne({
               _id: decoded.user.id,
               "tokens.token": token
-            }).select("-password");
+            }).populate("role","name");
+            console.log(user);
             if (!user) throw Error;
             req.user = user;
             next();
@@ -29,7 +31,7 @@ const authMiddleware=  async (req: Request, res: Response, next: NextFunction) =
         }
   
     } catch (err) {
-      res.status(401).json({ msg: "Token is not valid, please try log in again" });
+      return next(new HttpException(500, err.message))
     }
   }
   

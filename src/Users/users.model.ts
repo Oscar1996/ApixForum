@@ -1,12 +1,14 @@
 import { Schema, model } from 'mongoose';
-import {User} from './user.interface';
+import {User, Ban} from './user.interface';
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+import dayjs from 'dayjs';
 
 const userSchema = new Schema(
   {
     username: {
       type: String,
+      lowercase: true,
       required: [true, "Username is required"]
     },
     email: {
@@ -21,8 +23,8 @@ const userSchema = new Schema(
       required: [true, "Password is required"]
     },
     role: {
-      type: String,
-      default: "1",
+      type: Schema.Types.ObjectId,
+      ref: "Role",
       required: [true, "Role is required"]
     },
     tokens: [
@@ -36,7 +38,31 @@ const userSchema = new Schema(
     active: {
       type: Boolean,
       default: true
-    }
+    },
+    bans:[
+      {
+        reason:{
+          type: String,
+          default: 'No reason specified',
+          required: true
+        },
+        from:{
+          type: Date,
+          required:true,
+          default: dayjs()
+        },
+        until:{
+          type: Date,
+          required: [true, 'You need to specify a finishing date']
+        },
+        wasBanLifted:{
+          type: Boolean,
+          required: true,
+          default: false
+        }
+      }
+    ]
+
   },
   { timestamps: true }
 );
@@ -60,6 +86,36 @@ userSchema.methods.generateAuthToken = async function () {
   await user.save();
   return token;
 };
+
+userSchema.methods.isUserBanned = async function(){
+  const user= this;
+    for(let i=0; i<user.bans.length; i++){
+      if (dayjs(user.bans[i].until).isAfter(dayjs())&& !user.bans[i].wasBanLifted){
+         return {
+          banned:true,
+          msg:'Your account is banned until '+dayjs(user.bans[i].until).format('DD/MM/YYYY')+ 
+          ' REASON: '+ user.bans[i].reason 
+          };
+      };
+    };
+    return {banned:false};
+};
+
+
+userSchema.methods.unbanUser = async function(){
+  const user = this;
+  for(let i=0; i<user.bans.length; i++){
+    if (dayjs(user.bans[i].until).isAfter(dayjs())){
+      user.bans[i].wasBanLifted = true;
+    };
+  };
+  if(user.isModified("bans")){
+    await user.save();
+    return true;
+  }else{
+    return false;
+  }
+}
 
 
 // TypeScript is now aware of all the fields you defined in the interface,

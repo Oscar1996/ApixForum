@@ -8,7 +8,7 @@ const grantAccess = <T>(action: keyof Query, resource: string): RequestHandler =
     try {
         if(req.user){
           const role: AccessControl = await roles()
-            const permission = await role.can(req.user.role)[action](resource) as Permission;
+            const permission = await role.can(req.user.role.name)[action](resource) as Permission;
             if (!permission.granted) {
               return next(new HttpException(401, "You don't have enough permission to perform this action"))
             }else{
@@ -17,7 +17,7 @@ const grantAccess = <T>(action: keyof Query, resource: string): RequestHandler =
         }
         return next(new HttpException(401, "Seems you're not logged in, please log in to access this page"))
     } catch (error) {
-       next(error)
+      return next(new HttpException(500, error.message))
     }
   };
 };
