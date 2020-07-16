@@ -6,6 +6,7 @@ function validateEnv() {
     MONGO_PASSWORD: str(),
     MONGO_URI: str(),
     PORT: port(),
+    JWT_SECRET: str(),
   });
 }
 

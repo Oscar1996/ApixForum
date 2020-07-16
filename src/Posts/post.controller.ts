@@ -4,9 +4,10 @@ import Controller from '../interfaces/controller.interface';
 // An instance of a model is called a document
 import postModel from './post.model';
 import PostNotFoundException from '../exceptions/PostNotFoundException';
-import postDto from './post.dto';
+import CreatePostDto from './post.dto';
 import validationMiddleware from '../middlewares/validation.middlewares';
-
+import authMiddleware from '../middlewares/auth.middlewares';
+import RequestWithUser from '../interfaces/requestWithUser.interface';
 
 
 class PostController implements Controller {
@@ -19,13 +20,15 @@ class PostController implements Controller {
     this.initializeRoutes();
   }
 
-  public initializeRoutes() {
+  private initializeRoutes() {
     this.router.get(this.path, this.getAllPosts);
-    this.router.get(this.path + '/:id', this.getPostById);
-    this.router.post(this.path, validationMiddleware(postDto), this.createAPost);
-    this.router.patch(this.path + '/:id', validationMiddleware(postDto, true), this.modifyPost);
-    this.router.delete(this.path + '/:id', this.deletePost);
-  };
+    this.router.get(`${this.path}/:id`, this.getPostById);
+    this.router
+      .all(`${this.path}/*`, authMiddleware)
+      .patch(`${this.path}/:id`, validationMiddleware(CreatePostDto, true), this.modifyPost)
+      .delete(`${this.path}/:id`, this.deletePost)
+      .post(this.path, validationMiddleware(CreatePostDto), this.createAPost);
+  }
 
   getAllPosts = async (req: Request, res: Response) => {
     const posts = await postModel.find();
@@ -60,14 +63,17 @@ class PostController implements Controller {
     }
   };
 
-  createAPost = async (req: Request, res: Response) => {
+  createAPost = async (req: RequestWithUser, res: Response) => {
     // postData expect Post interface (author, content, title)
     const postData: Post = req.body;
-    const createdPost = new postModel(postData);
-    await createdPost.save();
+    const createdPost = new postModel({
+      ...postData,
+      authorId: req.user.id,
+    });
+    const postSaved = await createdPost.save();
     return res.status(201).json({
       message: 'Post created successfully!',
-      post: createdPost
+      ...postSaved
     });
   };
 

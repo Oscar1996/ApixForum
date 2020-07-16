@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import 'dotenv/config';
+import cookieParser from 'cookie-parser';
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
@@ -30,6 +31,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    this.app.use(cookieParser());
     this.app.use(bodyParser.json());
   }
 

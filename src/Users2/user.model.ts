@@ -2,7 +2,7 @@ import { Schema, model, Document } from 'mongoose';
 import User from './user.interface';
 
 const userSchema: Schema = new Schema({
-  user: {
+  name: {
     type: String,
     required: true,
   },

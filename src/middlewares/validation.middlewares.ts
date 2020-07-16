@@ -3,7 +3,7 @@ import { validate, ValidationError } from 'class-validator';
 import { RequestHandler, Request, Response, NextFunction } from 'express';
 import HttpException from '../exceptions/HttpException';
 
-const validationMiddleware = (type: any, skipMissingProperties = false): RequestHandler => {
+const validationMiddleware = <T>(type: any, skipMissingProperties = false): RequestHandler => {
   return async (req: Request, _: Response, next: NextFunction) => {
     // validate receives the data to validate, return an array of errors(of type ValidationError), if there's any.
     // first argument the data to process and second and object of options, in this case we want to skip some
