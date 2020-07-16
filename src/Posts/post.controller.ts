@@ -27,7 +27,7 @@ class PostController implements Controller {
       .all(`${this.path}/*`, authMiddleware)
       .patch(`${this.path}/:id`, validationMiddleware(CreatePostDto, true), this.modifyPost)
       .delete(`${this.path}/:id`, this.deletePost)
-      .post(this.path, validationMiddleware(CreatePostDto), this.createAPost);
+      .post(this.path, authMiddleware, validationMiddleware(CreatePostDto), this.createAPost);
   }
 
   getAllPosts = async (req: Request, res: Response) => {
@@ -68,12 +68,13 @@ class PostController implements Controller {
     const postData: Post = req.body;
     const createdPost = new postModel({
       ...postData,
-      authorId: req.user.id,
+      author: req.user._id,
     });
-    const postSaved = await createdPost.save();
+    const savedPost = await createdPost.save();
+    await savedPost.populate('author', '-password -createdAt -updatedAt').execPopulate();
     return res.status(201).json({
       message: 'Post created successfully!',
-      ...postSaved
+      Post: savedPost
     });
   };
 

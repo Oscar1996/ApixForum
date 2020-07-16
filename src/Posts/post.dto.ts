@@ -1,20 +1,12 @@
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 class CreatePostDto {
-
   @IsString()
-  public author!: string;
+  public title!: string;
 
-  @MaxLength(800)
   @IsString()
   public content!: string;
 
-  @MaxLength(70)
-  @MinLength(5, {
-    message: 'The title is too short, must contain at least 5 character'
-  })
-  @IsString()
-  public title!: string;
 }
 
 export default CreatePostDto;

@@ -11,6 +11,26 @@ class AuthenticationService {
 
   public user = userModel;
 
+  public register = async (userData: CreateUserDto) => {
+    const userFound = await this.user.findOne({ email: userData.email });
+    if (userFound) {
+      throw new UserWithThatEmailAlreadyExistsException(userData.email);
+    } else {
+      const salt = await genSalt(10);
+      const hashedPassword = await hash(userData.password, salt);
+      const user = await this.user.create({
+        ...userData,
+        password: hashedPassword,
+      });
+      const tokenData = this.createToken(user);
+      const cookie = this.createCookie(tokenData);
+      return {
+        cookie,
+        user,
+      }
+    }
+  }
+
   public createCookie(tokenData: TokenData) {
     return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
   }

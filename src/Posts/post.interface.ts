@@ -1,7 +1,8 @@
 interface Post {
-  author: string;
-  content: string;
+  authorId: string;
   title: string;
+  content: string;
+
 }
 
 export default Post;

@@ -2,9 +2,13 @@ import { Schema, model, Document } from 'mongoose';
 import Post from './post.interface';
 
 const postSchema = new Schema({
-  author: String,
-  content: String,
+  author: {
+    ref: 'Usert',
+    type: Schema.Types.ObjectId,
+  },
   title: String,
+  content: String,
+
 },
   { timestamps: true });
 

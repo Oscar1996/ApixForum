@@ -19,45 +19,38 @@ class AuthenticationController implements Controller {
 
   constructor() {
     this.initializeRoutes();
-  }
+  };
 
   private initializeRoutes() {
     this.router.post(`${this.path}/register`, validationMiddlewares(CreateUserDto), this.registration);
     this.router.post(`${this.path}/login`, validationMiddlewares(LogInDto), this.loggingIn);
-  }
+    this.router.post(`${this.path}/logout`, this.loggingOut);
+  };
 
   private registration = async (req: Request, res: Response, next: NextFunction) => {
     const userData: CreateUserDto = req.body;
-    const userFound = await this.user.findOne({ email: userData.email });
-    if (userFound) {
-      return next(new UserWithThatEmailAlreadyExistsException(userData.email));
-    } else {
-      const salt = await genSalt(10);
-      const hashedPassword = await hash(userData.password, salt);
-      const user = await this.user.create({
-        ...userData,
-        password: hashedPassword
-      });
-      const tokenData = this.authService.createToken(user);
-      res.setHeader('Set-Cookie', [this.authService.createCookie(tokenData)]);
-      return res.status(201).json({
-        message: 'User created successfully!',
-        user: user
-      });
+    try {
+      const { user, cookie } = await this.authService.register(userData);
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json(user);
+    } catch (error) {
+      next(error);
     }
-  }
+  };
 
   private loggingIn = async (req: Request, res: Response, next: NextFunction) => {
     const logInData: LogInDto = req.body;
     const user = await this.user.findOne({ email: logInData.email });
     if (user) {
-      const passCorrect = await compare(user.password, logInData.password);
+      const passCorrect = await compare(logInData.password, user.password);
       if (passCorrect) {
         const tokenData = this.authService.createToken(user);
         res.setHeader('Set-Cookie', [this.authService.createCookie(tokenData)]);
+        user.password = null;
         return res.status(200).json({
           message: 'User logged in!',
-          user: user.name
+          userName: user.name,
+          userId: user.id
         });
       } else {
         next(new WrongCredentialsException());
@@ -65,7 +58,14 @@ class AuthenticationController implements Controller {
     } else {
       next(new WrongCredentialsException());
     }
-  }
+  };
+
+  private loggingOut = async (req: Request, res: Response) => {
+    res.setHeader('Set-Cookies', ['Authorization=;Max-age=0']);
+    return res.status(200).json({
+      message: 'User loggedout!'
+    });
+  };
 }
 
 export default AuthenticationController;
