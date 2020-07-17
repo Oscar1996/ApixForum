@@ -64,7 +64,6 @@ class PostController implements Controller {
   };
 
   createAPost = async (req: RequestWithUser, res: Response) => {
-    // postData expect Post interface (author, content, title)
     const postData: Post = req.body;
     const createdPost = new postModel({
       ...postData,

@@ -1,13 +1,6 @@
 import { Schema, model, Document } from 'mongoose';
 import User from './user.interface';
 
-
-const addressSchema: Schema = new Schema({
-  city: String,
-  country: String,
-  street: String
-});
-
 const userSchema: Schema = new Schema({
   name: {
     type: String,
@@ -20,8 +13,7 @@ const userSchema: Schema = new Schema({
   password: {
     type: String,
     required: true,
-  },
-  address: addressSchema
+  }
 },
   { timestamps: true });
 
